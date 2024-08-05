@@ -32,7 +32,16 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        var ChessPiecesGOArr = GameObject.FindGameObjectsWithTag("Player");
+        SetPieces(PlayerType.Player);
+        SetPieces(PlayerType.Enemy);
+
+        DisplayTypeArray();
+    }
+
+    private static void SetPieces(PlayerType playerType)
+    {
+
+        var ChessPiecesGOArr = GameObject.FindGameObjectsWithTag(playerType.ToString());
 
         foreach (var piece in ChessPiecesGOArr)
         {
@@ -40,11 +49,9 @@ public class GameManager : MonoBehaviour
             {
                 var chesspiece = piece.AddComponent<ChessPiece>();
                 chesspiece.AssignPieceType(chesspiece.name);
-                chesspiece.AssignPositionArray();
+                chesspiece.AssignPositionArray(playerType);
             }
         }
-
-        DisplayTypeArray();
     }
 
     [ContextMenu("Display Array")]

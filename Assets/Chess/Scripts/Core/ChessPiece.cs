@@ -30,11 +30,44 @@ public class ChessPiece : MonoBehaviour,PathVisualizer
     
     int row, col;
 
-    
-
-    public void AssignPositionArray()
+    [ContextMenu("Show Path")]
+    public void ShowPath()
     {
-        playerType = PlayerType.Player;
+        if (playerType==PlayerType.Player)
+        {
+            ChessBoardPlacementHandler.Instance.ClearHighlights();
+
+            switch (pieceType)
+            {
+                case PieceType.Pawn:
+                    HighlightPawnPath();
+                    break;
+                case PieceType.Knight:
+                    HighlightKnightPath();
+                    break;
+                case PieceType.Bishop:
+                    HighlightBishopPath();
+                    break;
+                case PieceType.Rook:
+                    HighlightRookPath();
+                    break;
+                case PieceType.Queen:
+                    HighlightQueenPath();
+                    break;
+                case PieceType.King:
+                    HighlightKingPath();
+                    break;
+                default:
+                    Debug.LogError("Check piece type of " + gameObject.name);
+                    break;
+
+            }
+        }
+    }
+
+    public void AssignPositionArray(PlayerType pType)
+    {
+        playerType = pType;
         var PlacementHandler = GetComponent<ChessPlayerPlacementHandler>();
         row = PlacementHandler.row;
         col = PlacementHandler.column;
@@ -64,31 +97,6 @@ public class ChessPiece : MonoBehaviour,PathVisualizer
         }
     }
 
-    [ContextMenu("Show Path")]
-    public void ShowPath()
-    {
-        ChessBoardPlacementHandler.Instance.ClearHighlights();
-
-        switch (pieceType)
-        {
-            case PieceType.Pawn: HighlightPawnPath();
-                break;
-            case PieceType.Knight: HighlightKnightPath();
-                break;
-            case PieceType.Bishop: HighlightBishopPath();
-                break;
-            case PieceType.Rook: HighlightRookPath();
-                break;
-            case PieceType.Queen: HighlightQueenPath();
-                break;
-            case PieceType.King: HighlightKingPath();
-                break;
-            default: Debug.LogError("Check piece type of "+gameObject.name);
-                break;
-
-        }
-    }
-
     void HighlightCell(int r,int c)
     {
         ChessBoardPlacementHandler.Instance.Highlight(r,c);
@@ -110,10 +118,14 @@ public class ChessPiece : MonoBehaviour,PathVisualizer
             {
                 if (GameManager.Instance.PiecesArray[i, col] == 0)
                 {
-                    ChessBoardPlacementHandler.Instance.Highlight(i, col);
+                    HighlightCell(i, col);
                 }
                 else
+                {
+                    if(GameManager.Instance.PiecesArray[i,col] == PlayerType.Enemy)
+                        HighlightCell(i, col);
                     break;
+                }
             }
         }
     }
@@ -131,8 +143,8 @@ public class ChessPiece : MonoBehaviour,PathVisualizer
 
                 if (valid(row + movArr[i]) && valid(col + movArr[j]))
                 {
-                    if (GameManager.Instance.PiecesArray[row + movArr[i], col + movArr[j]] == 0)
-                        ChessBoardPlacementHandler.Instance.Highlight(row + movArr[i], col + movArr[j]);
+                    if (GameManager.Instance.PiecesArray[row + movArr[i], col + movArr[j]] != PlayerType.Player)
+                        HighlightCell(row + movArr[i], col + movArr[j]);
                 }
             }
         }
@@ -147,28 +159,44 @@ public class ChessPiece : MonoBehaviour,PathVisualizer
             if (valid(row+i) && valid(col+i) && GameManager.Instance.PiecesArray[row + i, col + i] == 0)
                 HighlightCell(row+i,col+ i);
             else
+            {
+                if(valid(row + i) && valid(col + i) && GameManager.Instance.PiecesArray[row + i, col + i] == PlayerType.Enemy)
+                    HighlightCell(row+i,col+ i);
                 break;
+            }
         }
         for (int i = 1; i <= maxDistance; i++)
         {
             if (valid(row+i) && valid(col-i) && GameManager.Instance.PiecesArray[row + i, col - i] == 0)
                 HighlightCell(row + i, col - i);
             else
+            {
+                if (valid(row + i) && valid(col - i) &&  GameManager.Instance.PiecesArray[row + i, col - i] == PlayerType.Enemy)
+                    HighlightCell(row + i, col - i);
                 break;
+            }
         }
         for (int i = 1;i <= maxDistance; i++)
         {
             if (valid(row-i) && valid(col-i) && GameManager.Instance.PiecesArray[row - i, col - i] == 0)
                 HighlightCell(row - i, col - i);
             else
+            {
+                if (valid(row - i) && valid(col - i) && GameManager.Instance.PiecesArray[row - i, col - i] == PlayerType.Enemy)
+                    HighlightCell(row - i, col - i);
                 break;
+            }
         }
         for (int i = 1; i <= maxDistance; i++)
         {
             if (valid(row - i) && valid(col + i) && GameManager.Instance.PiecesArray[row - i, col + i] == 0)
                 HighlightCell(row - i, col + i);
             else
+            {
+                if (valid(row - i) && valid(col + i) && GameManager.Instance.PiecesArray[row - i, col + i] == PlayerType.Enemy)
+                    HighlightCell(row - i, col + i);
                 break;
+            }
         }
     }
 
@@ -180,7 +208,11 @@ public class ChessPiece : MonoBehaviour,PathVisualizer
             if (valid(row + i) && GameManager.Instance.PiecesArray[row + i, col] == 0)
                 HighlightCell(row + i, col);
             else
+            {
+                if (valid(row + i) && GameManager.Instance.PiecesArray[row + i, col] == PlayerType.Enemy)
+                    HighlightCell(row + i, col);
                 break;
+            }
 
         }
         for (int i = 1; i <= maxDistance; i++)
@@ -188,21 +220,33 @@ public class ChessPiece : MonoBehaviour,PathVisualizer
             if (valid(row - i) && GameManager.Instance.PiecesArray[row - i, col] == 0)
                 HighlightCell(row - i, col);
             else
+            {
+                if (valid(row - i) && GameManager.Instance.PiecesArray[row - i, col] == PlayerType.Enemy)
+                    HighlightCell(row - i, col);
                 break;
+            }
         }
         for(int i = 1;i <= maxDistance; i++)
         {
             if (valid(col + i) && GameManager.Instance.PiecesArray[row, col+i] == 0)
                 HighlightCell(row , col+i);
             else
+            {
+                if (valid(col + i) && GameManager.Instance.PiecesArray[row, col + i] == PlayerType.Enemy)
+                    HighlightCell(row, col + i);
                 break;
+            }
         }
         for (int i = 1; i <= maxDistance; i++)
         {
             if (valid(col - i) && GameManager.Instance.PiecesArray[row, col - i] == 0)
                 HighlightCell(row, col - i);
             else
+            {
+                if (valid(col - i) && GameManager.Instance.PiecesArray[row, col - i] == PlayerType.Enemy)
+                    HighlightCell(row, col - i);
                 break;
+            }
         }
     }
 

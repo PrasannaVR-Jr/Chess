@@ -40,7 +40,8 @@ public sealed class ChessBoardPlacementHandler : MonoBehaviour {
             return;
         }
 
-        Instantiate(_highlightPrefab, tile.transform.position, Quaternion.identity, tile.transform);
+        var highlightGO=Instantiate(_highlightPrefab, tile.transform.position, Quaternion.identity, tile.transform);
+        highlightGO.GetComponent<SpriteRenderer>().color = GameManager.Instance?.PiecesArray[row,col]==PlayerType.Enemy ? Color.red : Color.green;
     }
 
     internal void ClearHighlights() {
